@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>KisanMitra — खेत ki salah (Prototype)</title>
+    <style>
+        :root { --bg:#f7fafc; --card:#fff; --accent:black; --muted:#6b7280; }
+        body{margin:0;font-family:Segoe UI,Arial,Roboto,sans-serif; background:var(--bg); color:#111}
+        .wrap{max-width:920px;margin:12px auto;padding:12px}
+        header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+        h1{margin:0;font-size:20px}
+        .controls{display:flex;gap:8px;align-items:center}
+        button{background:var(--accent);color:white;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
+        button[disabled]{opacity:.5;cursor:not-allowed}
+        .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.06);margin-top:12px}
+        label{display:block;font-size:13px;margin-top:8px;color:var(--muted)}
+        input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e5e7eb;margin-top:6px;box-sizing:border-box;font-size:14px}
+        textarea{min-height:84px}
+        .row{display:flex;gap:8px}
+        .pill{padding:6px 8px;border-radius:999px;background:#eef2ff;color:black;font-size:13px}
+        .post{border-left:4px solid #e6eefc;padding:10px;margin-top:10px;border-radius:6px;background:#fff}
+        .meta{font-size:13px;color:var(--muted);margin-bottom:8px}
+        .reply{margin-left:8px;margin-top:8px;padding:8px;border-radius:8px;background:#f8fafc}
+        .small{font-size:13px;color:var(--muted)}
+        .flex-between{display:flex;justify-content:space-between;align-items:center}
+        .action{display:inline-flex;gap:6px;align-items:center}
+        .lang-toggle{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:6px;border-radius:8px}
+        .share{background:#25D366}
+        .warn{background:#f97316}
+        footer{margin-top:18px;font-size:13px;color:var(--muted)}
+        @media(max-width:640px){ .row{flex-direction:column} header{flex-direction:column;align-items:flex-start} }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f4f8f3;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #2e7d32;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        main { padding: 1rem; }
+
+        button {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #askAdmin {
+            background: #25D366;
+            color: white;
+        }
+        #openChat {
+            background: black;
+            color: white;
+        }
+
+        #chatBox {
+            display: none;
+            background: white;
+            border: 2px solid black;
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #chatMessages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 8px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+        .msg {
+            background: #e8f5e9;
+            margin: 5px 0;
+            padding: 5px 8px;
+            border-radius: 8px;
+        }
+        #chatInput {
+            width: 80%;
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        #sendMsg {
+            background: #2e7d32;
+            color: white;
+            padding: 7px 12px;
+        }
+
+        body {
+            font-family: Arial;
+            background: #e8f5e9;
+            text-align: center;
+            margin-top: 80px;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            width: 250px;
+            border-radius: 8px;
+            border: 1px solid #999;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: green;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+
+    </style>
+
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <div>
+            <h1 id="title">KisanMitra — खेत की सलाह (Prototype)</h1>
+            <div class="small" id="tagline">Help farmers with practical ideas — Hindi & English</div>
+
+            <h1>🌾 KisanMitra — खेत की सलाह</h1>
+            <p>Ask & Share your farming problems with others</p>
+
+
+
+        </div>
+        <div class="controls">
+            <button id="newPostBtn">+ नया सवाल / Ask</button>
+            <button class="lang-toggle" id="langBtn">हिन्दी</button>
+        </div>
+    </header>
+
+    <div class="card" id="composer" style="display:none">
+        <div class="flex-between">
+            <strong id="composerTitle">Post a question</strong>
+            <div class="small">Draft saved locally</div>
+        </div>
+
+        <label id="lblName">Your name (optional)</label>
+        <input id="name" placeholder="Ram / राम" />
+
+        <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="flex:1">
+                <label id="lblCrop">Crop / काम</label>
+                <select id="crop">
+                    <option value="">-- Select crop --</option>
+                    <option>Wheat / गेहूँ</option>
+                    <option>Rice / धान</option>
+                    <option>Maize / मक्का</option>
+                    <option>Vegetables / सब्ज़ियाँ</option>
+                    <option>Fruit / फल</option>
+                    <option>Other / अन्य</option>
+                </select>
+            </div>
+            <div style="width:140px">
+                <label id="lblRegion">Region / जिला</label>
+                <input id="region" placeholder="e.g. Patna / पटना" />
+            </div>
+        </div>
+
+        <label id="lblQuestion">Question / सवाल</label>
+        <textarea id="question" placeholder="Describe the problem in a few lines..."></textarea>
+
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <button id="voiceBtn">🎙 Record (voice→text)</button>
+            <button id="shareWhats">Share via WhatsApp</button>
+            <button id="postBtn">Post</button>
+            <button id="cancelBtn" style="background:#e5e7eb;color:#111">Cancel</button>
+        </div>
+        <div class="small" style="margin-top:8px">Tip: use short clear sentences. Add region & crop for better answers.</div>
+    </div>
+
+    <div class="card">
+        <div style="display:flex;gap:8px;align-items:center;">
+            <input id="qfilter" placeholder="Search by text, crop, region..." style="flex:1" />
+            <select id="filterCrop"><option value="">All crops</option><option>Wheat / गेहूँ</option><option>Rice / धान</option><option>Vegetables / सब्ज़ियाँ</option><option>Fruit / फल</option><option>Maize / मक्का</option></select>
+            <button id="clearFilters" style="background:#6b7280">Clear</button>
+        </div>
+    </div>
+
+    <div id="feed"></div>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="exportBtn">Export posts (JSON)</button>
+        <button id="importBtn" style="background:#10b981">Import posts</button>
+        <input type="file" id="importFile" style="display:none" accept=".json" />
+    </div>
+
+    <footer>
+        <div>Prototype — not for production. To deploy: add Firebase/Firestore for data, Twilio for SMS, and partner with local Krishi Vibhag for moderation.</div>
+    </footer>
+</div>
+
+<main>
+    <h2>👩‍🌾 Connect and Ask</h2>
+    <button id="askAdmin">💬 Ask the Expert (Admin)</button>
+    <button id="openChat">🌾 Community Chat (Beta)</button>
+
+    <div id="chatBox">
+        <h3>Community Chat</h3>
+        <div id="chatMessages"></div>
+        <div style="margin-top:10px;">
+            <input type="text" id="chatInput" placeholder="Type your message..." />
+            <button id="sendMsg">Send</button>
+        </div>
+    </div>
+</main>
+
+<h2>🌾 Kisan Chat Login</h2>
+
+<div>
+    <input type="text" id="username" placeholder="Enter your name" required><br>
+    <input type="password" id="password" placeholder="Enter password" required><br>
+    <button onclick="login()">Login</button>
+    <div class="home-container">
+            <h2 id="welcome-msg"></h2>
+            <p id="weather">🌤 Loading weather...</p>
+            <p>🌱 Aaj ka Sujhav: Gehu ke beej ko 2 din dhoop me sukhaye.</p>
+
+            <button onclick="window.location.href='chat.html'">💬 Open Chat</button>
+            <button onclick="logout()">🚪 Logout</button>
+        </div>
+
+
+</div>
+
+<script>
+    // STORAGE KEY
+    const STORAGE_KEY = 'kisanmits_posts_v1';
+
+    // Load posts (array)
+    let posts = [];
+    try { posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ posts = []; }
+
+    let lang = 'hi'; // default 'hi' (Hindi) - toggle to 'en' for English
+
+    // Elements
+    const newPostBtn = document.getElementById('newPostBtn');
+    const composer = document.getElementById('composer');
+    const postBtn = document.getElementById('postBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const feed = document.getElementById('feed');
+    const qfilter = document.getElementById('qfilter');
+    const filterCrop = document.getElementById('filterCrop');
+    const clearFilters = document.getElementById('clearFilters');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const importFile = document.getElementById('importFile');
+    const langBtn = document.getElementById('langBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const shareWhats = document.getElementById('shareWhats');
+
+    // Strings
+    const strings = {
+        hi: {
+            title: 'KisanMitra — खेत की सलाह (Prototype)',
+            tagline: 'किसानों की मदद के लिए आइडिया साझा करें — हिन्दी और अंग्रेज़ी',
+            newPost: '+ नया सवाल / Ask',
+            composerTitle: 'सवाल पूछें',
+            lblName: 'आपका नाम (वैकल्पिक)',
+            lblCrop: 'फसल / काम',
+            lblRegion: 'क्षेत्र / जिला',
+            lblQuestion: 'सवाल / समस्या',
+            voiceBtn: '🎙 बोलें (वॉयस→टेक्स्ट)',
+            shareWhats: 'WhatsApp से शेयर करें',
+            postBtn: 'पोस्ट करें',
+            cancelBtn: 'रद्द करें',
+            searchPlaceholder: 'खोजें — टेक्स्ट, फसल, क्षेत्र...',
+            exportBtn: 'पोस्ट निर्यात करें (JSON)',
+            importBtn: 'पोस्ट आयात करें',
+            replyPlaceholder: 'अपना सुझाव लिखें',
+            emptyQuestionAlert: 'कृपया सवाल लिखें',
+            importedAlert: 'Import सफल'
+        },
+        en: {
+            title: 'KisanMitra — Farming Advice (Prototype)',
+            tagline: 'Share practical ideas to help farmers — Hindi & English',
+            newPost: '+ New Question / पूछें',
+            composerTitle: 'Post a question',
+            lblName: "Your name (optional)",
+            lblCrop: 'Crop / Work',
+            lblRegion: 'Region / District',
+            lblQuestion: 'Question / Problem',
+            voiceBtn: '🎙 Record (voice→text)',
+            shareWhats: 'Share via WhatsApp',
+            postBtn: 'Post',
+            cancelBtn: 'Cancel',
+            searchPlaceholder: 'Search — text, crop, region...',
+            exportBtn: 'Export posts (JSON)',
+            importBtn: 'Import posts',
+            replyPlaceholder: 'Write your idea',
+            emptyQuestionAlert: 'Please enter a question',
+            importedAlert: 'Import successful'
+        }
+    };
+
+    function t(key){ return strings[lang][key]; }
+
+    // apply language to UI
+    function applyLang(){
+        document.getElementById('title').innerText = t('title');
+        document.getElementById('tagline').innerText = t('tagline');
+        newPostBtn.innerText = t('newPost');
+        document.getElementById('composerTitle').innerText = t('composerTitle');
+        document.getElementById('lblName').innerText = t('lblName');
+        document.getElementById('lblCrop').innerText = t('lblCrop');
+        document.getElementById('lblRegion').innerText = t('lblRegion');
+        document.getElementById('lblQuestion').innerText = t('lblQuestion');
+        voiceBtn.innerText = t('voiceBtn');
+        shareWhats.innerText = t('shareWhats');
+        postBtn.innerText = t('postBtn');
+        cancelBtn.innerText = t('cancelBtn');
+        qfilter.placeholder = t('searchPlaceholder');
+        exportBtn.innerText = t('exportBtn');
+        importBtn.innerText = t('importBtn');
+        langBtn.innerText = (lang === 'hi') ? 'हिन्दी' : 'English';
+    }
+
+    langBtn.addEventListener('click', ()=>{
+        lang = (lang === 'hi') ? 'en' : 'hi';
+        applyLang();
+        renderFeed();
+    });
+
+    applyLang();
+
+    // UI actions
+    newPostBtn.addEventListener('click', ()=>{
+        composer.style.display = 'block';
+        window.scrollTo({top:0,behavior:'smooth'});
+    });
+    cancelBtn.addEventListener('click', ()=>{
+        composer.style.display = 'none';
+        clearComposer();
+    });
+
+    function clearComposer(){
+        document.getElementById('name').value = '';
+        document.getElementById('crop').value = '';
+        document.getElementById('region').value = '';
+        document.getElementById('question').value = '';
+    }
+
+    // Post action
+    postBtn.addEventListener('click', ()=>{
+        const name = document.getElementById('name').value.trim();
+        const crop = document.getElementById('crop').value;
+        const region = document.getElementById('region').value.trim();
+        const question = document.getElementById('question').value.trim();
+        if (!question) {
+            alert(t('emptyQuestionAlert'));
+            return;
+        }
+        const p = {
+            id: Date.now().toString(),
+            name, crop, region, question, when: new Date().toLocaleString(),
+            replies: [], votes: 0
+        };
+        posts.unshift(p);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+        composer.style.display = 'none';
+        clearComposer();
+        renderFeed();
+    });
+
+    // Voice recognition (optional, browser dependent)
+    let recognition = null;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = (lang === 'hi') ? 'hi-IN' : 'en-IN';
+        recognition.onresult = (e) => {
+            const text = e.results[0][0].transcript;
+            const qEl = document.getElementById('question');
+            qEl.value = qEl.value ? (qEl.value + '\n' + text) : text;
+        };
+        recognition.onerror = (e) => console.warn('Speech error', e);
+    } else {
+        voiceBtn.disabled = true;
+        voiceBtn.title = 'Voice recognition not available in this browser';
+    }
+
+    voiceBtn.addEventListener('click', ()=>{
+        if (!recognition) return alert(lang==='hi' ? 'ब्राउज़र वॉइस सपोर्ट नहीं कर रहा' : 'Voice not supported in your browser');
+        recognition.lang = (lang === 'hi') ? 'hi-IN' : 'en-IN';
+        try { recognition.start(); } catch(e){ console.warn(e); }
+    });
+
+    // Share via WhatsApp while composing
+    shareWhats.addEventListener('click', ()=>{
+        const q = document.getElementById('question').value.trim();
+        const crop = document.getElementById('crop').value;
+        const region = document.getElementById('region').value;
+        const text = encodeURIComponent((lang === 'hi' ? 'मेरी मदद करें: ' : 'Please help: ') + (crop ? '['+crop+'] ' : '') + q + (region ? (' — '+region) : ''));
+        const url = 'https://wa.me/?text=' + text;
+        window.open(url, '_blank');
+    });
+
+    // render feed function (core rendering)
+    function renderFeed(){
+        const q = (qfilter.value || '').trim().toLowerCase();
+        const cropFilter = filterCrop.value;
+        feed.innerHTML = '';
+        for (const p of posts) {
+            // simple search
+            const hay = (p.question + ' ' + (p.name||'') + ' ' + (p.crop||'') + ' ' + (p.region||'')).toLowerCase();
+            if (q && !hay.includes(q)) continue;
+            if (cropFilter && p.crop !== cropFilter) continue;
+
+            const el = document.createElement('div');
+            el.className = 'post card';
+            el.innerHTML = `
+          <div class="flex-between">
+            <div>
+              <strong>${escapeHtml(p.question)}</strong>
+              <div class="meta">${p.crop ? escapeHtml(p.crop) + ' · ' : ''}${p.region ? escapeHtml(p.region) + ' · ' : ''}${escapeHtml(p.name ? p.name : '(anonymous)')} · ${p.when}</div>
+            </div>
+            <div class="action">
+              <div class="pill">${p.votes} 👍</div>
+            </div>
+          </div>
+          <div id="replies-${p.id}"></div>
+          <div style="margin-top:8px" class="row">
+            <input id="replyInput-${p.id}" placeholder="${t('replyPlaceholder')}" style="flex:1" />
+            <button data-reply="${p.id}">Reply</button>
+            <button data-upvote="${p.id}">Upvote</button>
+            <button data-share="${p.id}" style="background:#25D366">Share</button>
+          </div>
+        `;
+            feed.appendChild(el);
+
+            // render replies safely as strings
+            const rdiv = document.getElementById('replies-'+p.id);
+            for (const r of p.replies) {
+                const re = document.createElement('div');
+                re.className = 'reply';
+                re.innerHTML = `
+            <div class="small">${escapeHtml(r.name || 'Someone')} · ${r.when}</div>
+            <div>${escapeHtml(r.text)}</div>
+          `;
+                rdiv.appendChild(re);
+            }
+        }
+
+        // attach dynamic event listeners
+        document.querySelectorAll('[data-reply]').forEach(btn=>{
+            btn.onclick = ()=>{
+                const id = btn.getAttribute('data-reply');
+                const input = document.getElementById('replyInput-'+id);
+                const text = input.value.trim();
+                if (!text) return alert(lang==='hi' ? 'खाली सुझाव नहीं' : 'Please write a reply');
+                const p = posts.find(x=>x.id === id);
+                if (!p) return;
+                p.replies.push({ name: 'Volunteer', text, when: new Date().toLocaleString() });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+                input.value = '';
+                renderFeed();
+            };
+        });
+
+        document.querySelectorAll('[data-upvote]').forEach(btn=>{
+            btn.onclick = ()=>{
+                const id = btn.getAttribute('data-upvote');
+                const p = posts.find(x=>x.id === id);
+                if (!p) return;
+                p.votes = (p.votes || 0) + 1;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+                renderFeed();
+            };
+        });
+
+        document.querySelectorAll('[data-share]').forEach(btn=>{
+            btn.onclick = ()=>{
+                const id = btn.getAttribute('data-share');
+                const p = posts.find(x=>x.id === id);
+                if (!p) return;
+                const text = encodeURIComponent((lang==='hi' ? 'सहायता चाहिए: ' : 'Help needed: ') + (p.crop ? '['+p.crop+'] ' : '') + p.question + (p.region ? (' — '+p.region) : ''));
+                window.open('https://wa.me/?text=' + text, '_blank');
+            };
+        });
+    }
+
+    // escape helper
+    function escapeHtml(s){
+        if (!s && s !== 0) return '';
+        return String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+
+    // Filters/events
+    qfilter.addEventListener('input', renderFeed);
+    filterCrop.addEventListener('change', renderFeed);
+    clearFilters.addEventListener('click', ()=>{
+        qfilter.value = '';
+        filterCrop.value = '';
+        renderFeed();
+    });
+
+    // Export/Import
+    exportBtn.addEventListener('click', ()=>{
+        const blob = new Blob([JSON.stringify(posts, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kisanmit_posts.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    importBtn.addEventListener('click', ()=> importFile.click());
+    importFile.addEventListener('change', (e)=>{
+        const f = e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = ()=>{
+            try {
+                const arr = JSON.parse(r.result);
+                if (!Array.isArray(arr)) throw new Error('Invalid file');
+                posts = arr.concat(posts);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+                renderFeed();
+                alert(t('importedAlert'));
+            } catch(err){
+                alert('Invalid JSON file');
+                console.error(err);
+            }
+        };
+        r.readAsText(f);
+        importFile.value = '';
+    });
+
+    // initial render & seeding
+    if (!posts || posts.length === 0) {
+        posts = [
+            { id:'p1', name:'Rani', crop:'Vegetables / सब्ज़ियाँ', region:'Gorakhpur', question:'Pudina ke patton par keede lag rahe hain — kya karu?', when:new Date().toLocaleString(), replies:[{name:'Krishi Mitra', text:'Neem ka tel spray kar ke dekho, aur crop rotation rakho', when:new Date().toLocaleString()}], votes:3 },
+            { id:'p2', name:'Munna', crop:'Wheat / गेहूँ', region:'Ranchi', question:'Harvest ke baad storage suggestion?', when:new Date().toLocaleString(), replies:[], votes:1 }
+        ];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    }
+
+    renderFeed();
+
+    // auto-save draft periodically
+    setInterval(()=>{
+        try {
+            const draft = {
+                name: document.getElementById('name').value,
+                crop: document.getElementById('crop').value,
+                region: document.getElementById('region').value,
+                question: document.getElementById('question').value
+            };
+            localStorage.setItem('kisan_draft', JSON.stringify(draft));
+        } catch(e){ /* ignore */ }
+    }, 2000);
+
+    // restore draft
+    window.addEventListener('load', ()=>{
+        try {
+            const d = JSON.parse(localStorage.getItem('kisan_draft') || '{}');
+            if (d) {
+                if (d.name) document.getElementById('name').value = d.name;
+                if (d.crop) document.getElementById('crop').value = d.crop;
+                if (d.region) document.getElementById('region').value = d.region;
+                if (d.question) document.getElementById('question').value = d.question;
+            }
+        } catch(e){ /* ignore */ }
+    });
+
+    // close cleanup
+    window.addEventListener('beforeunload', ()=>{ /* nothing special */ });
+
+    // ✅ Replace this with your WhatsApp number email id linkedIn profile (include country code, no + sign)
+    const admin = "linkedIn profile link";
+
+    // WhatsApp button
+    document.getElementById("askAdmin").onclick = () => {
+        const text = encodeURIComponent("नमस्ते! मुझे खेती से जुड़ा एक सवाल पूछना है।");
+        window.open("https://wa.me/" + adminNumber + "?text=" + text, "_blank");
+    };
+
+    // Chat section
+    const openChat = document.getElementById("openChat");
+    const chatBox = document.getElementById("chatBox");
+    const chatInput = document.getElementById("chatInput");
+    const sendMsg = document.getElementById("sendMsg");
+    const chatMessages = document.getElementById("chatMessages");
+
+    // Load old chat messages (from local storage)
+    let chat = JSON.parse(localStorage.getItem("kisanChat") || "[]");
+    renderChat();
+
+    openChat.onclick = () => {
+        chatBox.style.display = chatBox.style.display === "none" ? "block" : "none";
+    };
+
+    sendMsg.onclick = () => {
+        const msg = chatInput.value.trim();
+        if (msg === "") return;
+        const name = prompt("Enter your name (optional):") || "Farmer";
+        const entry = { name, msg, time: new Date().toLocaleTimeString() };
+        chat.push(entry);
+        localStorage.setItem("kisanChat", JSON.stringify(chat));
+        chatInput.value = "";
+        renderChat();
+    };
+
+    function renderChat() {
+        chatMessages.innerHTML = chat
+            .map(c => `
+      <div class="msg">
+        <strong>${c.name}:</strong> ${c.msg}<br>
+        <small>${c.time}</small>
+      </div>
+    `)
+            .join("");
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function login() {
+        const name = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value.trim();
+
+        if(name === '' || pass === '') {
+            alert('Please enter both name and password');
+            return;
+        }
+
+        // Store user info locally
+        localStorage.setItem('kisanUser', name);
+
+        // Go to chat page
+        window.location.href = "chat.html";
+    }
+
+</script>
+</body>
+</html>
+
+
